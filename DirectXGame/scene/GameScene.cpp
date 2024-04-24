@@ -1,19 +1,45 @@
 #include "GameScene.h"
-#include "TextureManager.h"
-#include <cassert>
+#include "ImGuiManager.h"
+#include "PrimitiveDrawer.h"
+#include "TextureManager.h" //テクスチャマネージャーのヘッダ
+#include <cassert>          //assert呼び出し
+
+#include "Player.h" //プレイヤーヘッダ
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+// デストラクタ
+GameScene::~GameScene() {
+
+	// 3Dモデルデータの解放p10
+	delete model_;
+	// 自キャラの解放p21
+	delete player_;
+}
 
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+	// ファイル名を指定してテクスチャハンドルを読み込むp9
+	textureHandle_ = TextureManager::Load("ressa-panda.jpg");
+	// 3Dモデルデータの生成p10
+	model_ = Model::Create();
+	// ビュープロジェクトションの初期化 p11
+	viewProjection_.Initialize();
+
+	// 自キャラ作成 p21
+	player_ = new Player();
+	// 自キャラの初期化 p21
+	player_->Initializa(model_, textureHandle_, &viewProjection_);
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+
+	// 自キャラの更新 p21
+	player_->Update();
+}
 
 void GameScene::Draw() {
 
@@ -41,6 +67,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+
+	// 自キャラの描画 p21
+	player_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

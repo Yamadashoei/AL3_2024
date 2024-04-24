@@ -7,8 +7,9 @@
 #include "TextureManager.h"
 #include "WinApp.h"
 
-//START
+// START
 
+// 02_01のp17から
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {

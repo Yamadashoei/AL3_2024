@@ -3,10 +3,13 @@
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "Input.h"
-#include "Model.h"
-#include "Sprite.h"
-#include "ViewProjection.h"
-#include "WorldTransform.h"
+#include "Model.h"          //モデルヘッダ
+#include "Sprite.h"         //スプライトヘッダ
+#include "ViewProjection.h" //ビュープロジェクションヘッダ
+#include "WorldTransform.h" //ワールドトランスフォームヘッダ
+
+#include "DebugCamera.h"
+#include "Player.h" //自キャラヘッダ
 
 /// <summary>
 /// ゲームシーン
@@ -44,7 +47,17 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
+	// 自キャラp20
+	Player* player_ = nullptr;
+
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+
+	// テクスチャハンドルp9
+	uint32_t textureHandle_ = 0;
+	// 3Dモデルデータp10
+	Model* model_ = nullptr;
+	// ビュープロジェクションp11
+	ViewProjection viewProjection_;
 };
