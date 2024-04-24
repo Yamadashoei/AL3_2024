@@ -24,3 +24,4 @@ private:
 	// p34
 	ViewProjection* viewProjection_ = nullptr;
 };
+
