@@ -10,6 +10,7 @@
 
 #include "DebugCamera.h"
 #include "Player.h" //自キャラヘッダ
+#include <vector>
 
 /// <summary>
 /// ゲームシーン
@@ -47,17 +48,26 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	// 自キャラp20
+	// 自キャラ 01_p20
 	Player* player_ = nullptr;
 
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
 
-	// テクスチャハンドルp9
+	// テクスチャハンドル 01_p9
 	uint32_t textureHandle_ = 0;
-	// 3Dモデルデータp10
+	// 3Dモデルデータ 01_p10
 	Model* model_ = nullptr;
-	// ビュープロジェクションp11
+	// ビュープロジェクション 01_p11
 	ViewProjection viewProjection_;
+
+	// 可変個配列 02_p6
+	std::vector<WorldTransform*> worldTransformBlocks_;
+
+	/// <summary>
+	/// 行列を計算する・転送する
+	/// </summary>
+	void UpdateMatrix();
+
 };
