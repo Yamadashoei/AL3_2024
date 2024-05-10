@@ -6,6 +6,7 @@ void Player::Initializa(Model* model, uint32_t textureHandle, ViewProjection* vi
 	// NULLポインタチェック p25
 	assert(model);
 	// 引数として受け取ったデータをメンバ変数に記録する↓ p25
+	/// ローカル変数は関数が終わると消える
 	// モデルをメンバ変数に記録
 	model_ = model;
 	// テクスチャハンドルをメンバ変数に記録

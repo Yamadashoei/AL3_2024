@@ -12,6 +12,8 @@
 #include "Player.h" //自キャラヘッダ
 #include <vector>
 
+#include"DebugCamera.h"
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -62,12 +64,24 @@ private: // メンバ変数
 	// ビュープロジェクション 01_p11
 	ViewProjection viewProjection_;
 
-	// 可変個配列 02_p6
-	std::vector<WorldTransform*> worldTransformBlocks_;
+	// ブロックモデルデータ 02_p4
+	Model* modelBlock_ = nullptr;
+
+	// 可変個配列 02_p6 & 02_p15
+	//std::vector<WorldTransform*> worldTransformBlocks_;
+
+	// 02_p15
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	//デバッグカメラ有効02_26
+	bool isDebugCameraActive_ = false;
+
+	//02_p27
+	DebugCamera* debugCamera_ = nullptr;
+
 
 	/// <summary>
 	/// 行列を計算する・転送する
 	/// </summary>
 	void UpdateMatrix();
-
 };

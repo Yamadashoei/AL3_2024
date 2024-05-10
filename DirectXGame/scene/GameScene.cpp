@@ -6,6 +6,8 @@
 
 #include "Player.h" //プレイヤーヘッダ
 
+// 02_p27からデバッグカメラの追加
+
 GameScene::GameScene() {}
 
 // デストラクタ
@@ -15,9 +17,15 @@ GameScene::~GameScene() {
 	delete model_;
 	// 自キャラの解放 01_p21
 	delete player_;
-	// 02_p7
-	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		delete worldTransformBlock;
+	// 3Dモデルデータの解放 02_p4
+	delete modelBlock_;
+	// デバッグカメラの解放 02_p27
+	delete debugCamera_;
+	// 02_p7 & 02_p16
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			delete worldTransformBlock;
+		}
 	}
 	worldTransformBlocks_.clear();
 }
@@ -39,34 +47,75 @@ void GameScene::Initialize() {
 	// 自キャラの初期化 01_p21
 	player_->Initializa(model_, textureHandle_, &viewProjection_);
 
-	// 要素数 02_p8
-	const uint32_t kNumBlockHorizontal = 20;
-	// ブロック1個分の横幅 02_p8
-	const float kBlockWidth = 2.0f;
-	// 要素数を変更する 02_p8
-	worldTransformBlocks_.resize(kNumBlockHorizontal);
+	// デバッグカメラの生成 02_p27
+	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
-	// キューブ生成 02_p8
-	for (uint32_t i = 0; i < kNumBlockHorizontal; ++i) {
-		worldTransformBlocks_[i] = new WorldTransform();
-		worldTransformBlocks_[i]->Initialize();
-		worldTransformBlocks_[i]->translation_.x = kBlockWidth * i;
-		worldTransformBlocks_[i]->translation_.y = 0.0f;
+	// ブロックモデルデータの生成 02_p4
+	modelBlock_ = Model::CreateFromOBJ("cube");
+
+	// 要素数 02_p8 & 02_p16
+	const uint32_t kNumBlockVirtical = 10;
+	const uint32_t kNumBlockHorizontal = 20;
+	// ブロック1個分の横幅 02_p8 & 02_p16
+	const float kBlockWidth = 2.0f;
+	const float kBlockHeight = 2.0f;
+	// 要素数を変更する 02_p8 & 02_p16
+	worldTransformBlocks_.resize(kNumBlockVirtical);
+	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
+		//
+		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 	}
+	// キューブ生成 02_p8 & 02_p16
+	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
+		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+			if ((i + j) % 2 == 0) //%は割る→今回は2で割ると0
+				continue;
+			worldTransformBlocks_[i][j] = new WorldTransform();
+			worldTransformBlocks_[i][j]->Initialize();
+			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
+			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
+		}
+	}
+	// ビュープロジェクション
 }
 
 void GameScene::Update() {
 
 	// 自キャラの更新 01_p21
 	player_->Update();
+	// デバッグカメラの更新 02_p27
+	debugCamera_->Update();
+	// 02_p28
+#ifdef DEBUG
+	if (input_->TriggerKey()) {
+	}
+
+#endif // DEBUG
 
 	// ブロックの更新 02_p9
-	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		// アフィン変換行列の作成
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			// アフィン変換行列の作成 02_p9
+			// 存在しなかったら次へ
+			if (!worldTransformBlock)
+				continue;
+			// 平行移動
+			Matrix4x4 result{
+			    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, worldTransformBlock->translation_.x, worldTransformBlock->translation_.y, worldTransformBlock->translation_.z,
+			    1.0f};
 
-		//worldTransformBlock->matWorld_ = ;
-		// 定数バッファに転送する
-		worldTransformBlock->TransferMatrix();
+			// 平行移動だけ代入
+			worldTransformBlock->matWorld_ = result;
+
+			/*// スケーリング行列
+			worldTransformBlock->scale_ = result;
+			// 回転行列
+			worldTransformBlock->rotation_ = result;
+			worldTransformBlock->translation_ = result;*/
+
+			// 定数バッファに転送する
+			worldTransformBlock->TransferMatrix();
+		}
 	}
 }
 
@@ -100,6 +149,16 @@ void GameScene::Draw() {
 	// 自キャラの描画 01_p21
 	player_->Draw();
 
+	// ブロック描画 02_p11
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			// 存在しなかったら次へ
+			if (!worldTransformBlock)
+				continue;
+			modelBlock_->Draw(*worldTransformBlock, viewProjection_);
+		}
+	}
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -118,4 +177,9 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
-void GameScene::UpdateMatrix() {}
+void GameScene::UpdateMatrix() {
+	// スケール、回転、平行移動を合成して行列を計算する
+	// matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
+	// 定数バッファに転送する
+	// TransferMatrix();
+}
