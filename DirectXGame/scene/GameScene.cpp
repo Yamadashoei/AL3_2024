@@ -86,12 +86,26 @@ void GameScene::Update() {
 	// デバッグカメラの更新 02_p27
 	debugCamera_->Update();
 	// 02_p28
-#ifdef DEBUG
-	if (input_->TriggerKey()) {
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
-
 #endif // DEBUG
 
+	//カメラの処理 02_p29
+	if (isDebugCameraActive_) {
+		// デバッグカメラの更新
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		//ビュープロジェクション
+		viewProjection_.TransferMatrix();
+	}
+	else {
+		//ビュープロジェクション行列の更新と転送
+		viewProjection_.UpdateMatrix();
+	}
+	
 	// ブロックの更新 02_p9
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -139,6 +153,7 @@ void GameScene::Draw() {
 #pragma endregion
 
 #pragma region 3Dオブジェクト描画
+
 	// 3Dオブジェクト描画前処理
 	Model::PreDraw(commandList);
 
