@@ -17,11 +17,11 @@ public:
 private:
 	// ワールド変換データ p18
 	WorldTransform worldTransform_;
-	// モデル p18
-	Model* model_ = nullptr;
-	// テクスチャハンドル p18
-	uint32_t textureHandle_ = 0u;
 	// p34
 	ViewProjection* viewProjection_ = nullptr;
-};
+	// モデル p18
+	Model* model_ = nullptr;
 
+	// テクスチャハンドル p18
+	uint32_t textureHandle_ = 0u;
+};

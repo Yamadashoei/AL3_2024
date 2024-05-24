@@ -4,7 +4,8 @@
 #include "TextureManager.h" //テクスチャマネージャーのヘッダ
 #include <cassert>          //assert呼び出し
 
-#include "Player.h" //プレイヤーヘッダ
+#include "Player.h"  //プレイヤーヘッダ
+#include "Skydome.h" //スカイドームヘッダ
 
 // 02_p27からデバッグカメラの追加
 
@@ -21,6 +22,13 @@ GameScene::~GameScene() {
 	delete modelBlock_;
 	// デバッグカメラの解放 02_p27
 	delete debugCamera_;
+
+	// 自キャラの解放 02_03_p23
+	delete skydome_;
+
+	// 自キャラの解放 02_03_p24
+	delete modelSkydome_;
+
 	// 02_p7 & 02_p16
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -41,17 +49,21 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 	// ビュープロジェクトションの初期化 01_p11
 	viewProjection_.Initialize();
-
 	// 自キャラ作成 01_p21
 	player_ = new Player();
 	// 自キャラの初期化 01_p21
 	player_->Initializa(model_, textureHandle_, &viewProjection_);
-
 	// デバッグカメラの生成 02_p27
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
-
 	// ブロックモデルデータの生成 02_p4
 	modelBlock_ = Model::CreateFromOBJ("cube");
+
+	// 3Dモデルの生成//02_03 p24
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+	// 自キャラ(天球)呼び出し02_03 p23
+	skydome_ = new Skydome();
+	// 自キャラ(天球)の初期化
+	skydome_->Initialize(modelSkydome_, &viewProjection_);
 
 	// 要素数 02_p8 & 02_p16
 	const uint32_t kNumBlockVirtical = 10;
@@ -85,6 +97,10 @@ void GameScene::Update() {
 	player_->Update();
 	// デバッグカメラの更新 02_p27
 	debugCamera_->Update();
+
+	// 自キャラの更新 02_p21
+	skydome_->Update();
+
 	// 02_p28
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_0)) {
@@ -92,20 +108,19 @@ void GameScene::Update() {
 	}
 #endif // DEBUG
 
-	//カメラの処理 02_p29
+	// カメラの処理 02_p29
 	if (isDebugCameraActive_) {
 		// デバッグカメラの更新
 		debugCamera_->Update();
 		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
 		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-		//ビュープロジェクション
+		// ビュープロジェクション
 		viewProjection_.TransferMatrix();
-	}
-	else {
-		//ビュープロジェクション行列の更新と転送
+	} else {
+		// ビュープロジェクション行列の更新と転送
 		viewProjection_.UpdateMatrix();
 	}
-	
+
 	// ブロックの更新 02_p9
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -163,6 +178,8 @@ void GameScene::Draw() {
 
 	// 自キャラの描画 01_p21
 	player_->Draw();
+	// 自キャラ(天球)の描画 02_p21
+	skydome_->Draw();
 
 	// ブロック描画 02_p11
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
