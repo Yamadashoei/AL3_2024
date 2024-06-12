@@ -4,8 +4,9 @@
 #include "TextureManager.h" //テクスチャマネージャーのヘッダ
 #include <cassert>          //assert呼び出し
 
-#include "Player.h"  //プレイヤーヘッダ
-#include "Skydome.h" //スカイドームヘッダ
+#include "MapChipField.h" //マップチップヘッダ
+#include "Player.h"       //プレイヤーヘッダ
+#include "Skydome.h"      //スカイドームヘッダ
 
 // 02_p27からデバッグカメラの追加
 
@@ -47,8 +48,10 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("ressa-panda.jpg");
 	// 3Dモデルデータの生成 01_p10
 	model_ = Model::Create();
-	// ビュープロジェクトションの初期化 01_p11
+	// ビュープロジェクトションの初期化 01_p11　//02_03 p32
+	// viewProjection_.farZ = 1000; // 遠くなら描画しない
 	viewProjection_.Initialize();
+
 	// 自キャラ作成 01_p21
 	player_ = new Player();
 	// 自キャラの初期化 01_p21
@@ -58,6 +61,13 @@ void GameScene::Initialize() {
 	// ブロックモデルデータの生成 02_p4
 	modelBlock_ = Model::CreateFromOBJ("cube");
 
+	// 要素数 02_p8 & 02_p16
+	const uint32_t kNumBlockVirtical = 10;
+	const uint32_t kNumBlockHorizontal = 20;
+	// ブロック1個分の横幅 02_p8 & 02_p16
+	const float kBlockWidth = 2.0f;
+	const float kBlockHeight = 2.0f;
+
 	// 3Dモデルの生成//02_03 p24
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	// 自キャラ(天球)呼び出し02_03 p23
@@ -65,12 +75,6 @@ void GameScene::Initialize() {
 	// 自キャラ(天球)の初期化
 	skydome_->Initialize(modelSkydome_, &viewProjection_);
 
-	// 要素数 02_p8 & 02_p16
-	const uint32_t kNumBlockVirtical = 10;
-	const uint32_t kNumBlockHorizontal = 20;
-	// ブロック1個分の横幅 02_p8 & 02_p16
-	const float kBlockWidth = 2.0f;
-	const float kBlockHeight = 2.0f;
 	// 要素数を変更する 02_p8 & 02_p16
 	worldTransformBlocks_.resize(kNumBlockVirtical);
 	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
@@ -88,6 +92,7 @@ void GameScene::Initialize() {
 			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
 		}
 	}
+
 	// ビュープロジェクション
 }
 
@@ -208,6 +213,7 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
+
 
 void GameScene::UpdateMatrix() {
 	// スケール、回転、平行移動を合成して行列を計算する

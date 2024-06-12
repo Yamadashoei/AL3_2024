@@ -16,6 +16,9 @@
 
 #include "DebugCamera.h"
 
+#include "MapChipField.h"//マップチップヘッダ
+
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -47,6 +50,7 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -60,6 +64,9 @@ private: // メンバ変数
 
 	// 3Dモデル //02_03 p24
 	Model* modelSkydome_ = nullptr;
+
+
+
 
 	/// <summary>
 	/// ゲームシーン用
@@ -86,6 +93,7 @@ private: // メンバ変数
 
 	// 02_p27
 	DebugCamera* debugCamera_ = nullptr;
+
 
 	/// <summary>
 	/// 行列を計算する・転送する
