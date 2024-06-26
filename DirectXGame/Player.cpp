@@ -7,7 +7,7 @@
 #include <numbers> //初期回転
 
 // 02_05 p17から
-
+//
 void Player::Initializa(Model* model, ViewProjection* viewProjection, const Vector3& position) {
 
 	// NULLポインタチェック p25
