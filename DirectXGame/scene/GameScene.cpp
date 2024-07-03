@@ -6,8 +6,6 @@
 
 #include "Player.h" //プレイヤーヘッダ
 
-// 02_p27からデバッグカメラの追加
-
 GameScene::GameScene() {}
 
 // デストラクタ
