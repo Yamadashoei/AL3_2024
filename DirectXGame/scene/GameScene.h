@@ -5,9 +5,9 @@
 #include "Input.h"
 #include "Model.h"          //モデルヘッダ
 #include "Sprite.h"         //スプライトヘッダ
+#include "TextureManager.h" //テクスチャマネージャーのヘッダ
 #include "ViewProjection.h" //ビュープロジェクションヘッダ
 #include "WorldTransform.h" //ワールドトランスフォームヘッダ
-#include "TextureManager.h" //テクスチャマネージャーのヘッダ
 
 #include "DebugCamera.h"
 #include "Player.h"  //自キャラヘッダ
@@ -16,8 +16,8 @@
 
 #include "DebugCamera.h"
 
-#include "MapChipField.h"//マップチップヘッダ
-
+#include "MapChipField.h" //マップチップヘッダ
+#include "CameraController.h"
 
 /// <summary>
 /// ゲームシーン
@@ -52,7 +52,6 @@ public: // メンバ関数
 
 	void GenerateBlocks();
 
-
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -66,9 +65,6 @@ private: // メンバ変数
 
 	// 3Dモデル //02_03 p24
 	Model* modelSkydome_ = nullptr;
-
-
-
 
 	/// <summary>
 	/// ゲームシーン用
@@ -96,9 +92,13 @@ private: // メンバ変数
 	// 02_p27
 	DebugCamera* debugCamera_ = nullptr;
 
-	//02_04 p21
-	//マップチップフィールド
+	// 02_04 p21
+	// マップチップフィールド
 	MapChipField* mapChipField_;
+
+	// 02_06 p14
+	// カメラコントロール
+	CameraController* cameraController_ = nullptr;
 
 	/// <summary>
 	/// 行列を計算する・転送する

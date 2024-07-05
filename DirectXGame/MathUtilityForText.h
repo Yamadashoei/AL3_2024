@@ -28,3 +28,14 @@ Vector3& operator+=(Vector3& lhs, const Vector3& rhv);
 float EaseInOut(float x1, float x2, float t);
 float Lerp(float x1, float x2, float t);
 Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t);
+
+// 2項演算 Vector3の足し算  02_06 補足p5
+const Vector3 operator+(const Vector3& v1, const Vector3& v2);
+
+// 代入演算子オーバーロード
+//  Vector3の掛け算 02_06 補足p10
+Vector3& operator*=(Vector3 v, float s);
+
+// 二項演算子オーバーロード
+//  Vector3の掛け算 02_06 補足p10
+const Vector3 operator*(const Vector3& v, float s);

@@ -1,13 +1,9 @@
 #include "GameScene.h"
 #include "ImGuiManager.h"
 #include "PrimitiveDrawer.h"
-#include "TextureManager.h" //テクスチャマネージャーのヘッダ
 #include <cassert>          //assert呼び出し
 
-#include "MapChipField.h" //マップチップヘッダ
 #include "MathUtilityForText.h"
-#include "Player.h"  //プレイヤーヘッダ
-#include "Skydome.h" //スカイドームヘッダ
 #include "input.h"
 
 // 02_p27からデバッグカメラの追加
@@ -50,7 +46,7 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	// ファイル名を指定してテクスチャハンドルを読み込む 01_p9
-	textureHandle_ = TextureManager::Load("ressa-panda.jpg"); //Resources/player.png
+	textureHandle_ = TextureManager::Load("ressa-panda.jpg"); // Resources/player.png
 	// 3Dモデルデータの生成 01_p10
 	model_ = Model::CreateFromOBJ("player", true);
 	// ビュープロジェクトションの初期化 01_p11　//02_03 p32
@@ -80,7 +76,21 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	// 自キャラの初期化 01_p21
 	player_->Initializa(model_, &viewProjection_, playerPosition); // playerPosition 追加
-	                                                               // 座標をマップチップで指定 02_05 p7 仮
+	
+	//自キャラの生成と初期化　02_07 p5
+	//player_->SetMapChipField(mapChipField_);
+
+
+	// カメラコントロールの初期化 02_06 p13||02_06 p7
+	cameraController_ = new CameraController();
+	cameraController_->Initialize();
+	cameraController_->SetTarget(player_);
+	cameraController_->Reset();
+	
+
+	//移動範囲の指定 02_06 p17 ||02_06 補足 p8
+	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
+	cameraController_->SetMovableArea(cameraArea);
 }
 
 void GameScene::Update() {
@@ -92,6 +102,10 @@ void GameScene::Update() {
 
 	// 自キャラの更新 02_p21
 	skydome_->Update();
+
+	// カメラコントローラーの更新 02_06_p13
+	cameraController_->Update();
+
 
 	// 02_p28
 #ifdef _DEBUG
@@ -110,7 +124,8 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	} else {
 		// ビュープロジェクション行列の更新と転送
-		viewProjection_.UpdateMatrix();
+		// viewProjection_.UpdateMatrix();
+		viewProjection_.TransferMatrix();
 	}
 
 	// ブロックの更新 02_p9
@@ -140,6 +155,8 @@ void GameScene::Update() {
 			//  定数バッファに転送する
 		}
 	}
+
+	// 更新 02_06 p13
 }
 
 void GameScene::Draw() {

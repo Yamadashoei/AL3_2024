@@ -1,4 +1,5 @@
 #pragma once
+#include "MapChipField.h"
 #include "MathUtilityForText.h"
 #include "Model.h"          //モデルヘッダ
 #include "TextureManager.h" //テクスチャマネージャーのヘッダ
@@ -15,6 +16,27 @@ public:
 
 	/// 描画
 	void Draw();
+
+	// 02_06 補足
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+
+	// 02_06 p28
+	const Vector3& GetVelocity() const { return velocity_; }
+
+
+	//// 02_07 p4
+	// void SetMapChipField(MapChipField* mapChipField) {}
+
+	//// 02_07 p10
+	// void InputMove();
+
+	//// 02_07 p13
+	// void Player::CheckMapCollision(CollisionMapInfo& info) {
+	//	CheckMapCollisionUp(info);
+	//	CheckMapCollisionDown(info);
+	//	CheckMapCollisionRight(info);
+	//	CheckMapCollisionLeft(info);
+	// }
 
 private:
 	// ワールド変換データ p18
@@ -51,11 +73,39 @@ private:
 	// 02_05 p27
 	bool onGround_ = true;
 	// 重力加速度(下方向)
-	static inline const float kGravityAcceleration = 1.0f;
-	//最大落下速度(下方向)
-	static inline const float kLimitFallSpeed = 1.0f;
-	//ジャンプ初速(上方向)
-	static inline const float kJumpAcceleration = 1.0f;
+	static inline const float kGravityAcceleration = 0.1f;
+	// 最大落下速度(下方向)
+	static inline const float kLimitFallSpeed = 0.5f;
+	// ジャンプ初速(上方向)
+	static inline const float kJumpAcceleration = 0.5f;
+
+
+	//// マップチップによるフィールド 02_07 p4
+	// MapChipField* mapChipField_ = nullptr;
+
+	//// キャラクターの当たり判定サイズ 02_07 p4
+	// static inline const float kWidth = 0.8f;
+	// static inline const float kHeight = 0.8f;
+
+	//// 02_07 p12
+	// struct CollisionMapInfo {
+	//	bool ceiling = false;
+	//	bool landing = false;
+	//	bool hitWall = false;
+	//	Vector3 move;
+	// };
+	//// 角 02_07 p16
+	// enum Corner {
+	//	kRightBottom, //右下
+	//	kLeftBottom, //左下
+	//	kRightTop, //右上
+	//	kLeftTop,//左下
+
+	//	kNumCorner //要素数
+	//};
+
+	///// 02_07 p17
+	// Vector3 CornerPosition(const Vector3& center, Corner corner);
 };
 
 /*// 初期化 02_05 p4
