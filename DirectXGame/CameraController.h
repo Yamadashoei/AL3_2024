@@ -25,6 +25,9 @@ public:
 
 	void SetMovableArea(Rect area) { movableArea_ = area; }
 
+	  const ViewProjection& GetViewProjection() const { return viewProjection_; }
+
+
 private:
 	// ビュープロジェクション 02_06 p6
 	ViewProjection viewProjection_;
@@ -35,7 +38,6 @@ private:
 	// 02_06 p11
 	Vector3 targetOffset_ = {0, 0, -15.0f};
 
-	const ViewProjection& GetViewProjection() const { return viewProjection_; }
 
 	Rect movableArea_ = {0, 100, 0, 100};
 
