@@ -75,10 +75,10 @@ void GameScene::Initialize() {
 	// 自キャラ作成 01_p21
 	player_ = new Player();
 	// 自キャラの初期化 01_p21
-	player_->Initializa(model_, &viewProjection_, playerPosition); // playerPosition 追加
+	player_->Initialize(model_, &viewProjection_, playerPosition); // playerPosition 追加
 	
 	//自キャラの生成と初期化　02_07 p5
-	//player_->SetMapChipField(mapChipField_);
+	player_->SetMapChipField(mapChipField_);
 
 
 	// カメラコントロールの初期化 02_06 p13||02_06 p7
