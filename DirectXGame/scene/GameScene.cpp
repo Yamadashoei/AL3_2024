@@ -31,6 +31,11 @@ GameScene::~GameScene() {
 	// マップチップフィールドの解放 02_04 p21
 	delete mapChipField_;
 
+	//敵キャラ
+	delete enemy_;
+	//敵キャラモデル
+	delete modelEnemy_;
+
 	// 02_p7 & 02_p16
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -80,6 +85,17 @@ void GameScene::Initialize() {
 	//自キャラの生成と初期化　02_07 p5
 	player_->SetMapChipField(mapChipField_);
 
+	// 座標をマップチップ番号で指定
+	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
+
+	// 敵キャラの生成
+	enemy_ = new Enemy();
+	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+
+	// 敵キャラの初期化
+	enemy_->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
+	enemy_->SetMapChipField(mapChipField_);
+
 
 	// カメラコントロールの初期化 02_06 p13||02_06 p7
 	cameraController_ = new CameraController();
@@ -102,6 +118,9 @@ void GameScene::Update() {
 
 	// 自キャラの更新 02_p21
 	skydome_->Update();
+
+	// 敵キャラの更新
+	enemy_->Update();
 
 	// カメラコントローラーの更新 02_06_p13
 	cameraController_->Update();
@@ -193,6 +212,9 @@ void GameScene::Draw() {
 	player_->Draw();
 	// 自キャラ(天球)の描画 02_p21
 	skydome_->Draw();
+
+	// 敵キャラの描画
+	enemy_->Draw();
 
 	// ブロック描画 02_p11
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {

@@ -12,6 +12,7 @@
 #include "DebugCamera.h"
 #include "Player.h"  //自キャラヘッダ
 #include "Skydome.h" //スカイドームヘッダ
+#include "Enemy.h"
 #include <vector>
 
 #include "DebugCamera.h"
@@ -65,6 +66,13 @@ private: // メンバ変数
 
 	// 3Dモデル //02_03 p24
 	Model* modelSkydome_ = nullptr;
+	//敵キャラモデル
+
+	Model* modelEnemy_ = nullptr;
+
+	// 敵キャラ
+	Enemy* enemy_ = nullptr;
+
 
 	/// <summary>
 	/// ゲームシーン用
