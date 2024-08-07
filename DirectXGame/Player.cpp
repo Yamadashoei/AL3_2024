@@ -33,7 +33,7 @@ void Player::Update() {
 	worldTransform_.TransferMatrix();
 	worldTransform_.UpdateMatrix();
 
-	// 接地状態 02_05 p28・
+	// 接地状態 02_05 p28
 	// 02_05 p32
 	if (onGround_) {
 
