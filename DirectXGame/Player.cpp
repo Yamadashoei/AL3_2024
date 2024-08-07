@@ -17,15 +17,15 @@ void Player::Initializa(Model* model, ViewProjection* viewProjection, const Vect
 	// モデルをメンバ変数に記録
 	model_ = model;
 
-	//(ビュープロジェクション)引数の内容をメンバ変数に記録 p34k
-	viewProjection_ = viewProjection;
-
 	// ワールド変換の初期化 02_05 p5
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-
 	// 初期回転 p6
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
+	//(ビュープロジェクション)引数の内容をメンバ変数に記録 p34k
+	viewProjection_ = viewProjection;
+
 }
 
 void Player::Update() {
@@ -41,11 +41,10 @@ void Player::Update() {
 		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
 			// 左右加速
 			Vector3 acceleration = {};
-			velocity_ += acceleration;
-			// 最大速度制限
-			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+
 			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 				// 右入力
+
 				if (velocity_.x < 0.0f) {
 					velocity_.x *= (1.0f - kAttenuation);
 				}
@@ -68,23 +67,27 @@ void Player::Update() {
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn; //
 				}
-			} else {
-				// 非入力時は移動減衰をかける 02_05 p12
-				velocity_.x *= (1.0f - kAttenuation);
 			}
-			// ジャンプ入力 02_05 p30
-			if (Input::GetInstance()->PushKey(DIK_UP)) {
-				// ジャンプ初速
-				velocity_ += Vector3(0, kJumpAcceleration, 0);
-			}
-			// 空中 02_0 p28
+			velocity_ += acceleration;
+			// 最大速度制限
+			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 		} else {
-			// 落下速度
-			velocity_ += Vector3(0, -kGravityAcceleration, 0);
-			// 落下速度制限
-			velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+			// 非入力時は移動減衰をかける 02_05 p12
+			velocity_.x *= (1.0f - kAttenuation);
 		}
+		// ジャンプ入力 02_05 p30
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			// ジャンプ初速
+			velocity_ += Vector3(0, kJumpAcceleration, 0);
+		}
+		// 空中 02_0 p28
+	} else {
+		// 落下速度
+		velocity_ += Vector3(0, -kGravityAcceleration, 0);
+		// 落下速度制限
+		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
+
 	// 移動
 	worldTransform_.translation_ += velocity_;
 
@@ -123,20 +126,22 @@ void Player::Update() {
 		}
 	}
 
-		// 旋回制御　02_0 p20
-		if (turnTimer_ > 0.0f) {
-			// 旋回タイマーを1/60秒分カウントダウン
-			turnTimer_ -= 1.0f / 60.0f;
+	// 旋回制御　02_0 p20
+	if (turnTimer_ > 0.0f) {
+		// 旋回タイマーを1/60秒分カウントダウン
+		turnTimer_ -= 1.0f / 60.0f;
 
-			float destinationRotationYTable[]{std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
-			// 状態に応じた角度を取得をする 02_05 p20
-			float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
-			// 自キャラの角度を設定する 02_05 p20
-			worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, turnTimer_ / kTimeTurn);
-		}
+		float destinationRotationYTable[]{
+			std::numbers::pi_v<float> / 2.0f, 
+			std::numbers::pi_v<float> * 3.0f / 2.0f};
+		// 状態に応じた角度を取得をする 02_05 p20
+		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
+		// 自キャラの角度を設定する 02_05 p20
+		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, turnTimer_ / kTimeTurn);
 	}
+}
 
-	void Player::Draw() {
-		// 3Dモデル p35
-		model_->Draw(worldTransform_, *viewProjection_);
-	}
+void Player::Draw() {
+	// 3Dモデル p35
+	model_->Draw(worldTransform_, *viewProjection_);
+}

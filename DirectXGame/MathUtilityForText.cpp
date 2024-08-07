@@ -96,7 +96,11 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 // 3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translation) {
 	Matrix4x4 ans;
-	ans = Multiply(Multiply(MakeScaleMatrix(scale), Multiply(Multiply(MakeRotateXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)), MakeRotateZMatrix(rotate.z))), MakeTranslateMatrix(translation));
+	ans = Multiply(Multiply(MakeScaleMatrix(scale),
+		Multiply(Multiply(MakeRotateXMatrix(rotate.x), 
+		MakeRotateYMatrix(rotate.y)), 
+		MakeRotateZMatrix(rotate.z))),
+		MakeTranslateMatrix(translation));
 	return ans;
 }
 
@@ -106,7 +110,7 @@ float EaseInOut(float x1, float x2, float t) {
 	return Lerp(x1, x2, easedT);
 }
 
-float Lerp(float x1, float x2, float t) { return (1.0f, t) * x1 + t * x2; }
+float Lerp(float x1, float x2, float t) { return (1.0f- t) * x1 + t * x2; }
 Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) { 
 	return Vector3(Lerp(v1.x, v2.x, t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t)); 
 }
