@@ -15,6 +15,7 @@
 #include "ViewProjection.h" //ビュープロジェクションヘッダ
 #include "WorldTransform.h" //ワールドトランスフォームヘッダ
 #include <vector>
+#include "DeathParticles.h"//パーティクルヘッダ
 
 /// <summary>
 /// ゲームシーン
@@ -56,49 +57,47 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	// 自キャラ
-	Player* player_ = nullptr;
-	// スカイドーム
-	Skydome* skydome_ = nullptr;
-
-	// スカイドーム3Dモデル
-	Model* modelSkydome_ = nullptr;
-
-	// 敵キャラモデル
-	Model* modelEnemy_ = nullptr;
-	// 敵キャラ
-	// Enemy* enemy_ = nullptr;
-	std::list<Enemy*> enemies_;
-
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
-
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0;
-	// 3Dモデルデータ
+
+	// 3Dモデル
 	Model* model_ = nullptr;
+	Model* modelBlock_ = nullptr;
+	Model* modelEnemy_ = nullptr;
+	Model* modelDeathParticles = nullptr;
+
+	// ワールドトランスフォーム
+	WorldTransform worldTransform_;
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
-	// ブロックモデルデータ
-	Model* modelBlock_ = nullptr;
-
-	//
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
-
-	// デバッグカメラ有効
-	bool isDebugCameraActive_ = false;
-	// 02_p27
-	DebugCamera* debugCamera_ = nullptr;
 
 	// マップチップフィールド
 	MapChipField* mapChipField_;
 
-	// カメラコントロール
-	CameraController* cameraController_ = nullptr;
+	// 自キャラ
+	Player* player_ = nullptr;
+	// 敵キャラ
+	// Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
-	/// <summary>
-	/// 行列を計算する・転送する
-	/// </summary>
-	void UpdateMatrix();
+	DeathParticles* deathParticles_ = nullptr;
+
+	// 縦横ブロック配列
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	// デバッグカメラ有効
+	bool isDebugCameraActive_ = false;
+	// デバッグカメラ
+	DebugCamera* debugCamera_ = nullptr;
+
+	// 天球
+	Skydome* skydome_ = nullptr;
+	// 3Dモデル
+	Model* modelSkydome_ = nullptr;
+
+	// カメラコントローラ
+	CameraController* cameraController_ = nullptr;
 };

@@ -20,6 +20,8 @@ Matrix4x4 MakeRotateZMatrix(float radian);
 // 3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translation);
 
+Matrix4x4 PlayerAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+
 // EaseInOut関数
 float EaseInOut(float x1, float x2, float t);
 float Lerp(float x1, float x2, float t);
@@ -39,4 +41,4 @@ const Vector3 operator*(const Vector3& v, float s);
 //当たり判定
 bool IsCollision(const AABB& aabb1, const AABB& aabb2);
 
-Matrix4x4 PlayerAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);

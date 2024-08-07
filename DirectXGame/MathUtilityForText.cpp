@@ -1,20 +1,8 @@
 #include "MathUtilityForText.h"
 #include <cmath>
 #include <numbers>
+#include <cassert>
 
-// アフィン変換から 02_02
-// Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vector3& translate) {
-//
-//	//
-//	Vector3 dm;
-//	dm = scale;
-//	dm = rot;
-//
-//	//
-//	Matrix4x4 result{1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, translate.x, translate.y, translate.z, 1.0f};
-//
-//	return result;
-// }
 
 // Vector3の足し算
 Vector3& operator+=(Vector3& lhv, const Vector3& rhv) {
@@ -100,6 +88,17 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	return ans;
 }
 
+// アフィン変換行列の作成
+Matrix4x4 PlayerAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+	// エラー対策（使用しない）
+	Vector3 dm = scale;
+
+	// 回転＊平行移動だけをワールド変換行列に
+	Matrix4x4 ansMat = Multiply(MakeRotateYMatrix(rotate.y), MakeTranslateMatrix(translate));
+
+	return ansMat;
+}
+
 // EaseInOut関数 02_05 p22
 float EaseInOut(float x1, float x2, float t) {
 	float easedT = -(std::cosf(std::numbers::pi_v<float> * t) - 1.0f) / 2.0f;
@@ -138,13 +137,17 @@ bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	       (aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z);   // z軸
 }
 
-// アフィン変換行列の作成
-Matrix4x4 PlayerAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
-	// エラー対策（使用しない）
-	Vector3 dm = scale;
+Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
+	Vector3 ans;
+	ans.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
+	ans.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
+	ans.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
+	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + 1.0f * matrix.m[3][3];
+	assert(w != 0.0f);
+	ans.x /= w;
+	ans.y /= w;
+	ans.z /= w;
 
-	// 回転＊平行移動だけをワールド変換行列に
-	Matrix4x4 ansMat = Multiply(MakeRotateYMatrix(rotate.y), MakeTranslateMatrix(translate));
-
-	return ansMat;
+	return ans;
 }
+
