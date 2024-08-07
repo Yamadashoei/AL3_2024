@@ -4,8 +4,9 @@
 #include "TextureManager.h" //テクスチャマネージャーのヘッダ
 #include <cassert>          //assert呼び出し
 
-#include "Player.h"  //プレイヤーヘッダ
-#include "Skydome.h" //スカイドームヘッダ
+#include "MapChipField.h" //マップチップヘッダ
+#include "Player.h"       //プレイヤーヘッダ
+#include "Skydome.h"      //スカイドームヘッダ
 
 // 02_p27からデバッグカメラの追加
 
@@ -29,6 +30,9 @@ GameScene::~GameScene() {
 	// 自キャラの解放 02_03_p24
 	delete modelSkydome_;
 
+	// マップチップフィールドの解放 02_04 p21
+	delete mapChipField_;
+
 	// 02_p7 & 02_p16
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -47,8 +51,10 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("ressa-panda.jpg");
 	// 3Dモデルデータの生成 01_p10
 	model_ = Model::Create();
-	// ビュープロジェクトションの初期化 01_p11
+	// ビュープロジェクトションの初期化 01_p11　//02_03 p32
+	// viewProjection_.farZ = 1000; // 遠くなら描画しない
 	viewProjection_.Initialize();
+
 	// 自キャラ作成 01_p21
 	player_ = new Player();
 	// 自キャラの初期化 01_p21
@@ -56,7 +62,7 @@ void GameScene::Initialize() {
 	// デバッグカメラの生成 02_p27
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	// ブロックモデルデータの生成 02_p4
-	modelBlock_ = Model::CreateFromOBJ("cube");
+	modelBlock_ = Model::CreateFromOBJ("block");
 
 	// 3Dモデルの生成//02_03 p24
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
@@ -65,29 +71,11 @@ void GameScene::Initialize() {
 	// 自キャラ(天球)の初期化
 	skydome_->Initialize(modelSkydome_, &viewProjection_);
 
-	// 要素数 02_p8 & 02_p16
-	const uint32_t kNumBlockVirtical = 10;
-	const uint32_t kNumBlockHorizontal = 20;
-	// ブロック1個分の横幅 02_p8 & 02_p16
-	const float kBlockWidth = 2.0f;
-	const float kBlockHeight = 2.0f;
-	// 要素数を変更する 02_p8 & 02_p16
-	worldTransformBlocks_.resize(kNumBlockVirtical);
-	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
-		//
-		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-	}
-	// キューブ生成 02_p8 & 02_p16
-	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
-		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
-			if ((i + j) % 2 == 0) //%は割る→今回は2で割ると0
-				continue;
-			worldTransformBlocks_[i][j] = new WorldTransform();
-			worldTransformBlocks_[i][j]->Initialize();
-			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
-			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
-		}
-	}
+	// マップチップ呼び出し02_04 p21
+	mapChipField_ = new MapChipField;
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+	GenerateBlocks(); // 02_04 p23
+
 	// ビュープロジェクション
 }
 
@@ -207,6 +195,30 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::GenerateBlocks() {
+	// 要素数 02_p8 & 02_p16
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	// 要素数を変更する 02_p8 & 02_p16
+	worldTransformBlocks_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		//
+		worldTransformBlocks_[i].resize(numBlockHorizontal);
+	}
+	// キューブ生成 02_p8 & 02_p16
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) { //%は割る→今回は2で割ると0
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformBlocks_[i][j] = worldTransform;
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
 }
 
 void GameScene::UpdateMatrix() {

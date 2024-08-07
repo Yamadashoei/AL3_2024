@@ -17,8 +17,9 @@ void Player::Initializa(Model* model, uint32_t textureHandle, ViewProjection* vi
 }
 
 void Player::Update() {
-	// 行列を定数バッファに転送 p30
+	// 行列を定数バッファに転送 p30 //02_03 p36
 	worldTransform_.TransferMatrix();
+	//worldTransform_.UpdateMatrix();
 }
 
 void Player::Draw() {
