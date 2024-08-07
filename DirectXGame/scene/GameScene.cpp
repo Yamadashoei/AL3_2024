@@ -6,7 +6,7 @@
 #include "MathUtilityForText.h"
 #include "input.h"
 
-// 02_p27からデバッグカメラの追加
+/// 02_p27からデバッグカメラの追加
 
 GameScene::GameScene() {}
 
