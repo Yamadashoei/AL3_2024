@@ -63,7 +63,7 @@ void GameScene::Initialize() {
 
 	// マップチップフィールドの生成と初期化
 	mapChipField_ = new MapChipField;
-	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
+	mapChipField_->LoadMapChipCsv("./Resources/blocks.csv");
 
 	// 座標をマップチップ番号で指定
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 15);
@@ -90,10 +90,6 @@ void GameScene::Initialize() {
 		enemies_.push_back(newEnemy);
 	}
 
-	// 敵キャラの初期化
-	/*enemy_->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
-	enemy_->SetMapChipField(mapChipField_);*/
-
 	player_->Update();
 	Vector3 position = player_->GetworldPosition();
 
@@ -107,7 +103,7 @@ void GameScene::Initialize() {
 	// 天球の生成
 	skydome_ = new Skydome();
 	// 天球3Dモデルの生成
-	modelSkydome_ = Model::CreateFromOBJ("sphere", true);
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	// 天球の初期化
 	skydome_->Initialize(modelSkydome_, &viewProjection_);
 
