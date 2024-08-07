@@ -1,24 +1,20 @@
 #pragma once
 
 #include "Audio.h"
+#include "CameraController.h"
+#include "DebugCamera.h"
 #include "DirectXCommon.h"
+#include "Enemy.h" //敵キャラヘッダ
 #include "Input.h"
+#include "MapChipField.h"   //マップチップヘッダ
 #include "Model.h"          //モデルヘッダ
+#include "Player.h"         //自キャラヘッダ
+#include "Skydome.h"        //スカイドームヘッダ
 #include "Sprite.h"         //スプライトヘッダ
 #include "TextureManager.h" //テクスチャマネージャーのヘッダ
 #include "ViewProjection.h" //ビュープロジェクションヘッダ
 #include "WorldTransform.h" //ワールドトランスフォームヘッダ
-
-#include "DebugCamera.h"
-#include "Player.h"  //自キャラヘッダ
-#include "Skydome.h" //スカイドームヘッダ
-#include "Enemy.h"
 #include <vector>
-
-#include "DebugCamera.h"
-
-#include "MapChipField.h" //マップチップヘッダ
-#include "CameraController.h"
 
 /// <summary>
 /// ゲームシーン
@@ -51,6 +47,8 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	void CheckAllCollisions();
+
 	void GenerateBlocks();
 
 private: // メンバ変数
@@ -58,53 +56,44 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	// 自キャラ 01_p20
+	// 自キャラ
 	Player* player_ = nullptr;
-
-	// 自キャラ 01_p20
+	// スカイドーム
 	Skydome* skydome_ = nullptr;
 
-	// 3Dモデル //02_03 p24
+	// スカイドーム3Dモデル
 	Model* modelSkydome_ = nullptr;
-	//敵キャラモデル
 
+	// 敵キャラモデル
 	Model* modelEnemy_ = nullptr;
-
 	// 敵キャラ
-	Enemy* enemy_ = nullptr;
-
+	// Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
 
-	// テクスチャハンドル 01_p9
+	// テクスチャハンドル
 	uint32_t textureHandle_ = 0;
-	// 3Dモデルデータ 01_p10
+	// 3Dモデルデータ
 	Model* model_ = nullptr;
-	// ビュープロジェクション 01_p11
+	// ビュープロジェクション
 	ViewProjection viewProjection_;
-
-	// ブロックモデルデータ 02_p4
+	// ブロックモデルデータ
 	Model* modelBlock_ = nullptr;
 
-	// 可変個配列 02_p6 & 02_p15
-	// std::vector<WorldTransform*> worldTransformBlocks_;
-
-	// 02_p15
+	//
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
-	// デバッグカメラ有効02_26
+	// デバッグカメラ有効
 	bool isDebugCameraActive_ = false;
-
 	// 02_p27
 	DebugCamera* debugCamera_ = nullptr;
 
-	// 02_04 p21
 	// マップチップフィールド
 	MapChipField* mapChipField_;
 
-	// 02_06 p14
 	// カメラコントロール
 	CameraController* cameraController_ = nullptr;
 

@@ -2,8 +2,7 @@
 #include "Matrix4x4.h"
 #include "Vector3.h"
 #include <math.h>
-
-// Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vector3& translate);
+#include <AABB.h>
 
 //
 Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2);
@@ -21,21 +20,23 @@ Matrix4x4 MakeRotateZMatrix(float radian);
 // 3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translation);
 
-// Vector3の足し算
-Vector3& operator+=(Vector3& lhs, const Vector3& rhv);
-
-// EaseInOut関数 02_05 補足
+// EaseInOut関数
 float EaseInOut(float x1, float x2, float t);
 float Lerp(float x1, float x2, float t);
 Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t);
 
-// 2項演算 Vector3の足し算  02_06 補足p5
+//Vector3の足し算
+Vector3& operator+=(Vector3& lhs, const Vector3& rhv);
+//Vector3の足し算
 const Vector3 operator+(const Vector3& v1, const Vector3& v2);
 
 // 代入演算子オーバーロード
-//  Vector3の掛け算 02_06 補足p10
+//  Vector3の掛け算
 Vector3& operator*=(Vector3 v, float s);
-
-// 二項演算子オーバーロード
-//  Vector3の掛け算 02_06 補足p10
+//  Vector3の掛け算
 const Vector3 operator*(const Vector3& v, float s);
+
+//当たり判定
+bool IsCollision(const AABB& aabb1, const AABB& aabb2);
+
+Matrix4x4 PlayerAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);

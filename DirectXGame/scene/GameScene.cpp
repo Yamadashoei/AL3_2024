@@ -1,7 +1,7 @@
 #include "GameScene.h"
 #include "ImGuiManager.h"
 #include "PrimitiveDrawer.h"
-#include <cassert>          //assert呼び出し
+#include <cassert> //assert呼び出し
 
 #include "MathUtilityForText.h"
 #include "input.h"
@@ -31,9 +31,15 @@ GameScene::~GameScene() {
 	// マップチップフィールドの解放 02_04 p21
 	delete mapChipField_;
 
-	//敵キャラ
-	delete enemy_;
-	//敵キャラモデル
+	// 敵キャラ
+	// delete enemy_;
+	// 敵キャラモデル
+
+	for (Enemy* newEnemy : enemies_) {
+		delete newEnemy;
+	}
+	enemies_.clear();
+
 	delete modelEnemy_;
 
 	// 02_p7 & 02_p16
@@ -50,81 +56,88 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
-	// ファイル名を指定してテクスチャハンドルを読み込む 01_p9
+	// ファイル名を指定してテクスチャハンドルを読み込む
 	textureHandle_ = TextureManager::Load("ressa-panda.jpg"); // Resources/player.png
-	// 3Dモデルデータの生成 01_p10
+	// 3Dモデルデータの生成
 	model_ = Model::CreateFromOBJ("player", true);
-	// ビュープロジェクトションの初期化 01_p11　//02_03 p32
-	// viewProjection_.farZ = 1000; // 遠くなら描画しない
+	// ビュープロジェクトションの初期化
 	viewProjection_.Initialize();
 
-	// デバッグカメラの生成 02_p27
+	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
-	// ブロックモデルデータの生成 02_p4
+	// ブロックモデルデータの生成
 	modelBlock_ = Model::CreateFromOBJ("block");
 
-	// 3Dモデルの生成//02_03 p24
+	// 3Dモデルの生成
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
-	// 自キャラ(天球)呼び出し02_03 p23
+	// 自キャラ(天球)呼び出し
 	skydome_ = new Skydome();
 	// 自キャラ(天球)の初期化
 	skydome_->Initialize(modelSkydome_, &viewProjection_);
 
-	// マップチップ呼び出し02_04 p21
+	// マップチップ呼び出し
 	mapChipField_ = new MapChipField;
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
-	GenerateBlocks(); // 02_04 p23
+	GenerateBlocks();
 
-	// 座標をマップチップ番号で指定 02_05 p7
+	// 座標をマップチップ番号で指定
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(3, 18);
-	// 自キャラ作成 01_p21
+	// 自キャラ作成
 	player_ = new Player();
-	// 自キャラの初期化 01_p21
+	// 自キャラの初期化
 	player_->Initialize(model_, &viewProjection_, playerPosition); // playerPosition 追加
-	
-	//自キャラの生成と初期化　02_07 p5
+
+	// 自キャラの生成と初期化
 	player_->SetMapChipField(mapChipField_);
 
 	// 座標をマップチップ番号で指定
-	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
+	// Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
 
 	// 敵キャラの生成
-	enemy_ = new Enemy();
+	// enemy_ = new Enemy();
 	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+	for (int32_t i = 0; i < 2; ++i) {
+		modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
+		newEnemy->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
+
+		enemies_.push_back(newEnemy);
+	}
 
 	// 敵キャラの初期化
-	enemy_->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
-	enemy_->SetMapChipField(mapChipField_);
-
+	// enemy_->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
+	// enemy_->SetMapChipField(mapChipField_);
 
 	// カメラコントロールの初期化 02_06 p13||02_06 p7
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
 	cameraController_->Reset();
-	
 
-	//移動範囲の指定 02_06 p17 ||02_06 補足 p8
+	// 移動範囲の指定
 	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
 	cameraController_->SetMovableArea(cameraArea);
 }
 
 void GameScene::Update() {
 
-	// 自キャラの更新 01_p21
+	// 自キャラの更新
 	player_->Update();
-	// デバッグカメラの更新 02_p27
-	debugCamera_->Update();
-
-	// 自キャラの更新 02_p21
+	// スカイドームの更新
 	skydome_->Update();
-
 	// 敵キャラの更新
-	enemy_->Update();
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
 
-	// カメラコントローラーの更新 02_06_p13
+	// デバッグカメラの更新
+	debugCamera_->Update();
+	// カメラコントローラーの更新
 	cameraController_->Update();
 
+	// 全ての当たり判定を行う
+	CheckAllCollisions();
 
 	// 02_p28
 #ifdef _DEBUG
@@ -133,7 +146,7 @@ void GameScene::Update() {
 	}
 #endif // DEBUG
 
-	// カメラの処理 02_p29
+	// カメラの処理
 	if (isDebugCameraActive_) {
 		// デバッグカメラの更新
 		debugCamera_->Update();
@@ -149,10 +162,10 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	}
 
-	// ブロックの更新 02_p9
+	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			// アフィン変換行列の作成 02_p9
+			// アフィン変換行列の作成
 			// 存在しなかったら次へ
 			if (!worldTransformBlock)
 				continue;
@@ -167,17 +180,10 @@ void GameScene::Update() {
 			Matrix4x4 matWorld = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->rotation_);
 			// アフィン変換と転送
 			worldTransformBlock->TransferMatrix();
-
-			//// スケーリング行列
-			// worldTransformBlock->scale_ = result;
-			//// 回転行列
-			// worldTransformBlock->rotation_ = result;
-			// worldTransformBlock->translation_ = result;
-			//  定数バッファに転送する
 		}
 	}
 
-	// 更新 02_06 p13
+	//
 }
 
 void GameScene::Draw() {
@@ -208,15 +214,16 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
-	// 自キャラの描画 01_p21
+	// 自キャラの描画
 	player_->Draw();
-	// 自キャラ(天球)の描画 02_p21
+	//スカイドームの描画
 	skydome_->Draw();
-
 	// 敵キャラの描画
-	enemy_->Draw();
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw();
+	}
 
-	// ブロック描画 02_p11
+	// ブロック描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			// 存在しなかったら次へ
@@ -244,6 +251,28 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
+void GameScene::CheckAllCollisions() {
+	// 判定対象1と2の座標
+	AABB aabb1, aabb2;
+
+	// 自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	// 自キャラと敵弾すべての当たり判定
+	for (Enemy* enemy : enemies_) {
+		// 敵弾の座標
+		aabb2 = enemy->GetAABB();
+
+		// AABB同士の交差判定
+		if (IsCollision(aabb1, aabb2)) {
+			// 自キャラの衝突時コールバックを呼び起こす
+			player_->OnCollision(enemy);
+			// 敵弾の衝突時コールバックを呼び起こす
+			enemy->OnCollision(player_);
+		}
+	}
+}
+
 void GameScene::GenerateBlocks() {
 	// 要素数 02_p8 & 02_p16
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
@@ -266,11 +295,4 @@ void GameScene::GenerateBlocks() {
 			}
 		}
 	}
-}
-
-void GameScene::UpdateMatrix() {
-	// スケール、回転、平行移動を合成して行列を計算する
-	// matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
-	// 定数バッファに転送する
-	// TransferMatrix();
 }

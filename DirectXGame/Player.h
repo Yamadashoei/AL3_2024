@@ -1,3 +1,4 @@
+#include <AABB.h>
 #include <Input.h>
 #include <MathUtilityForText.h>
 #include <Model.h>
@@ -7,6 +8,7 @@
 #include <numbers>
 
 class MapChipField;
+class Enemy;
 
 /// <summary>
 /// 自キャラ
@@ -51,6 +53,14 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	const Vector3& GetVelocity() const { return velocity_; }
+
+	Vector3 GetworldPosition();
+
+	// AABBを取得
+	AABB GetAABB();
+
+	// 衝突応答
+	void OnCollision(const Enemy* enemy);
 
 private:
 	static inline const float kAcceleration = 0.1f;

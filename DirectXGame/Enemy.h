@@ -1,4 +1,4 @@
-
+#include <AABB.h>
 #include <Input.h>
 #include <MathUtilityForText.h>
 #include <Model.h>
@@ -8,6 +8,7 @@
 #include <numbers>
 
 class MapChipField;
+class Player;
 
 class Enemy {
 public:
@@ -27,6 +28,13 @@ public:
 	void Draw();
 
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+	Vector3 GetworldPosition();
+
+	AABB GetAABB();
+
+	// 衝突応答
+	void OnCollision(const Player* player);
 
 private:
 	// ワールドトランスフォーム
@@ -52,4 +60,7 @@ private:
 	static inline const float kWalkMotionTime = 1.0f;
 	// 経過時間
 	float walkTimer_ = 0.0f;
+
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
 };

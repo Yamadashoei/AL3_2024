@@ -131,3 +131,20 @@ const Vector3 operator*(const Vector3& v, float s) {
 	Vector3 temp(v);
 	return temp *= s;
 }
+
+bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
+	return (aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) && // x軸
+	       (aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) && // y軸
+	       (aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z);   // z軸
+}
+
+// アフィン変換行列の作成
+Matrix4x4 PlayerAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+	// エラー対策（使用しない）
+	Vector3 dm = scale;
+
+	// 回転＊平行移動だけをワールド変換行列に
+	Matrix4x4 ansMat = Multiply(MakeRotateYMatrix(rotate.y), MakeTranslateMatrix(translate));
+
+	return ansMat;
+}
