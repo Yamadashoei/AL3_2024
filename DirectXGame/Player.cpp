@@ -9,7 +9,6 @@ void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vect
 	assert(model);
 
 	model_ = model;
-	// textureHandle_ = textureHandle;
 	//  ワールド変換の初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
