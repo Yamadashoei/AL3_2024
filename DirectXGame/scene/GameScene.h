@@ -2,6 +2,7 @@
 
 #include "Audio.h"
 #include "CameraController.h"
+#include "DeathParticles.h" //パーティクルヘッダ
 #include "DebugCamera.h"
 #include "DirectXCommon.h"
 #include "Enemy.h" //敵キャラヘッダ
@@ -51,54 +52,69 @@ public: // メンバ関数
 
 	void GenerateBlocks();
 
+	////ゲームプレイフェーズから開始
+	void ChangePhase();
+
+	// デスフラグのgetter
+	bool IsFinished() const { return finished_; }
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	// 自キャラ
-	Player* player_ = nullptr;
-	// スカイドーム
-	Skydome* skydome_ = nullptr;
-
-	// スカイドーム3Dモデル
-	Model* modelSkydome_ = nullptr;
-
-	// 敵キャラモデル
-	Model* modelEnemy_ = nullptr;
-	// 敵キャラ
-	// Enemy* enemy_ = nullptr;
-	std::list<Enemy*> enemies_;
-
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
-
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0;
-	// 3Dモデルデータ
+
+	// 3Dモデル
 	Model* model_ = nullptr;
+	Model* modelBlock_ = nullptr;
+	Model* modelEnemy_ = nullptr;
+	Model* modelDeathParticles = nullptr;
+
+	// ワールドトランスフォーム
+	WorldTransform worldTransform_;
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
-	// ブロックモデルデータ
-	Model* modelBlock_ = nullptr;
-
-	//
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
-
-	// デバッグカメラ有効
-	bool isDebugCameraActive_ = false;
-	// 02_p27
-	DebugCamera* debugCamera_ = nullptr;
 
 	// マップチップフィールド
 	MapChipField* mapChipField_;
 
-	// カメラコントロール
+	// 自キャラ
+	Player* player_ = nullptr;
+	// 敵キャラ
+	// Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
+
+	DeathParticles* deathParticles_ = nullptr;
+
+	// 縦横ブロック配列
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	// デバッグカメラ有効
+	bool isDebugCameraActive_ = false;
+	// デバッグカメラ
+	DebugCamera* debugCamera_ = nullptr;
+
+	// 天球
+	Skydome* skydome_ = nullptr;
+	// 3Dモデル
+	Model* modelSkydome_ = nullptr;
+
+	// カメラコントローラ
 	CameraController* cameraController_ = nullptr;
 
-	/// <summary>
-	/// 行列を計算する・転送する
-	/// </summary>
-	void UpdateMatrix();
+	// ゲームフェーズ型
+	enum class Phase {
+		kPlay,
+		kDeath,
+	};
+	// ゲームフェーズ変数
+	Phase phase_;
+	// 終了フラグ
+	bool finished_ = false;
+
 };

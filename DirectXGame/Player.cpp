@@ -56,7 +56,7 @@ void Player::Draw() {
 	model_->Draw(worldTransform_, *viewProjection_);
 }
 
-Vector3 Player::GetworldPosition() {
+Vector3 Player::GetWorldPosition() {
 	// ワールド座標を入れる変数
 	Vector3 worldPos;
 	// ワールド行列の平行移動成分を取得(ワールド座標)
@@ -68,7 +68,7 @@ Vector3 Player::GetworldPosition() {
 }
 
 AABB Player::GetAABB() {
-	Vector3 worldPos = GetworldPosition();
+	Vector3 worldPos = GetWorldPosition();
 
 	AABB aabb;
 
@@ -80,8 +80,8 @@ AABB Player::GetAABB() {
 
 void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
-	// ジャンプ開始(仮処理)
-	velocity_ += Vector3(0, 0.5f, 0);
+	// デスフラグを立てる
+	isDead_ = true;
 }
 
 void Player::inputMove() {
