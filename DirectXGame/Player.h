@@ -1,11 +1,11 @@
-#include <AABB.h>
-#include <Input.h>
-#include <MathUtilityForText.h>
+#include <WorldTransform.h>
 #include <Model.h>
 #include <Vector3.h>
-#include <WorldTransform.h>
-#include <algorithm>
 #include <numbers>
+#include <Input.h>
+#include <MathUtilityForText.h>
+#include <algorithm>
+#include <AABB.h>
 
 class MapChipField;
 class Enemy;
@@ -54,13 +54,17 @@ public:
 
 	const Vector3& GetVelocity() const { return velocity_; }
 
-	Vector3 GetworldPosition();
+	Vector3 GetWorldPosition();
 
 	// AABBを取得
 	AABB GetAABB();
 
 	// 衝突応答
 	void OnCollision(const Enemy* enemy);
+
+	// デスフラグgetter
+	bool IsDead() const { return isDead_; }
+
 
 private:
 	static inline const float kAcceleration = 0.1f;
@@ -128,4 +132,10 @@ private:
 	void AnimateTurn();
 
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
+
+	//デスフラグ
+	bool isDead_ = false;
+	
+
+
 };
