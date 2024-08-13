@@ -1,8 +1,7 @@
 #include "MathUtilityForText.h"
+#include <cassert>
 #include <cmath>
 #include <numbers>
-#include <cassert>
-
 
 // Vector3の足し算
 Vector3& operator+=(Vector3& lhv, const Vector3& rhv) {
@@ -84,6 +83,12 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 // 3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translation) {
 	Matrix4x4 ans;
+	// スケール
+	Matrix4x4 ScallMat = {scale.x, 0, 0, 0, 0, scale.y, 0, 0, 0, 0, scale.z, 0, 0, 0, 1};
+	// 拡大＊回転＊平行移動でワールド変換行列に
+	//Matrix4x4 ansMat = MatrixMultiply(ScaleMat, RotateMatAll);
+	//ansMat = MatrixMultiply(ansMat, TranslateMat);
+
 	ans = Multiply(Multiply(MakeScaleMatrix(scale), Multiply(Multiply(MakeRotateXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)), MakeRotateZMatrix(rotate.z))), MakeTranslateMatrix(translation));
 	return ans;
 }
@@ -150,4 +155,3 @@ Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 
 	return ans;
 }
-
