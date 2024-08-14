@@ -203,6 +203,9 @@ void GameScene::Update() {
 		if (deathParticles_) {
 			deathParticles_->Update();
 		}
+		if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+			finished_ = true;
+		}
 
 		// カメラ処理
 		if (isDebugCameraActive_) {
