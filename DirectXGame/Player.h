@@ -1,11 +1,11 @@
-#include <WorldTransform.h>
-#include <Model.h>
-#include <Vector3.h>
-#include <numbers>
+#include <AABB.h>
 #include <Input.h>
 #include <MathUtilityForText.h>
+#include <Model.h>
+#include <Vector3.h>
+#include <WorldTransform.h>
 #include <algorithm>
-#include <AABB.h>
+#include <numbers>
 
 class MapChipField;
 class Enemy;
@@ -65,7 +65,6 @@ public:
 	// デスフラグgetter
 	bool IsDead() const { return isDead_; }
 
-
 private:
 	static inline const float kAcceleration = 0.1f;
 	static inline const float kAttenuation = 0.05f;
@@ -101,6 +100,9 @@ private:
 
 	Vector3 velocity_ = {};
 
+	// デスフラグ
+	bool isDead_ = false;
+
 	// 接地状態フラグ
 	bool onGround_ = true;
 
@@ -132,10 +134,4 @@ private:
 	void AnimateTurn();
 
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
-
-	//デスフラグ
-	bool isDead_ = false;
-	
-
-
 };

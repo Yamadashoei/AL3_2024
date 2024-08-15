@@ -6,6 +6,8 @@
 #include "MathUtilityForText.h"
 #include "input.h"
 
+#include "TitleScene.h"
+
 // 02_p27からデバッグカメラの追加
 
 GameScene::GameScene() {}
@@ -63,7 +65,7 @@ void GameScene::Initialize() {
 
 	// 天球の生成
 	skydome_ = new Skydome();
-	//天球3Dモデルの生成
+	// 天球3Dモデルの生成
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	model_ = Model::CreateFromOBJ("player", true);
 
@@ -88,7 +90,6 @@ void GameScene::Initialize() {
 
 		enemies_.push_back(newEnemy);
 	}
-
 
 	player_->Update();
 	Vector3 position = player_->GetWorldPosition();
@@ -126,16 +127,12 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_SPACE)) {
-		if (isDebugCameraActive_ == true)
-			isDebugCameraActive_ = false;
-		else
-			isDebugCameraActive_ = true;
+		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 #endif
 
 	switch (phase_) {
 	case Phase::kPlay:
-
 		// 天球の更新
 		skydome_->Update();
 
@@ -174,7 +171,6 @@ void GameScene::Update() {
 					continue;
 
 				// アフィン変換行列の作成
-				//(MakeAffineMatrix：自分で作った数学系関数)
 				worldTransformBlockYoko->matWorld_ = MakeAffineMatrix(worldTransformBlockYoko->scale_, worldTransformBlockYoko->rotation_, worldTransformBlockYoko->translation_);
 
 				// 定数バッファに転送
@@ -188,7 +184,6 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kDeath:
-
 		// 天球の更新
 		skydome_->Update();
 
@@ -199,12 +194,9 @@ void GameScene::Update() {
 
 		ChangePhase();
 
-		//
+		// パーティクルの更新
 		if (deathParticles_) {
 			deathParticles_->Update();
-		}
-		if (Input::GetInstance()->PushKey(DIK_RETURN)) {
-			finished_ = true;
 		}
 
 		// カメラ処理
@@ -229,13 +221,13 @@ void GameScene::Update() {
 					continue;
 
 				// アフィン変換行列の作成
-				//(MakeAffineMatrix：自分で作った数学系関数)
 				worldTransformBlockYoko->matWorld_ = MakeAffineMatrix(worldTransformBlockYoko->scale_, worldTransformBlockYoko->rotation_, worldTransformBlockYoko->translation_);
 
 				// 定数バッファに転送
 				worldTransformBlockYoko->TransferMatrix();
 			}
 		}
+		//タイトルscene
 
 		break;
 	}
@@ -383,6 +375,7 @@ void GameScene::ChangePhase() {
 	case Phase::kDeath:
 
 		if (deathParticles_ && deathParticles_->IsFinished()) {
+			// パーティクルの処理が終了したらタイトル画面に戻る
 			finished_ = true;
 		}
 
