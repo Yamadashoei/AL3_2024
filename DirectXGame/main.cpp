@@ -11,14 +11,14 @@
 GameScene* gameScene = nullptr;
 TitleScene* titleScene = nullptr;
 
-// シーン（型）
+// シーン
 enum class Scene {
 	kUnknown = 0,
 
 	kTitle,
 	kGame,
 };
-// 現在シーン（型）
+// 現在シーン
 Scene scene = Scene::kTitle;
 
 void ChangeScene();

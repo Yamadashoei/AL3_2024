@@ -25,8 +25,7 @@ public:
 
 	void SetMovableArea(Rect area) { movableArea_ = area; }
 
-	  const ViewProjection& GetViewProjection() const { return viewProjection_; }
-
+	const ViewProjection& GetViewProjection() const { return viewProjection_; }
 
 private:
 	// ビュープロジェクション 02_06 p6
@@ -38,8 +37,7 @@ private:
 	// 02_06 p11
 	Vector3 targetOffset_ = {0, 0, -15.0f};
 
-
-	Rect movableArea_ = {0, 100, 0, 100};
+	Rect movableArea_ = {0, 300, 0, 300};
 
 	// カメラの目標座標 02_06 p23
 	Vector3 cameraPos;
@@ -52,5 +50,4 @@ private:
 
 	// 追従対象の各方向ほカメラ移動範囲 02_06 p33
 	static inline const Rect margin = {-50, 50, -50, 50};
-
 };

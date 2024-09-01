@@ -1,15 +1,11 @@
 #include "GameScene.h"
 #include "ImGuiManager.h"
-#include "PrimitiveDrawer.h"
-#include <cassert> //assert呼び出し
-
 #include "MathUtilityForText.h"
-#include "input.h"
-
+#include "PrimitiveDrawer.h"
 #include "TitleScene.h"
-
-// 02_p27からデバッグカメラの追加
-
+#include "input.h"
+#include <cassert>
+ 
 GameScene::GameScene() {}
 
 // デストラクタ
@@ -40,6 +36,8 @@ GameScene::~GameScene() {
 
 	delete modelEnemy_;
 
+	delete modelGoal_;
+
 	if (deathParticles_) {
 		delete deathParticles_;
 	}
@@ -56,8 +54,11 @@ void GameScene::Initialize() {
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("./Resources/cube/cube.jpg");
 
-	// 3Dモデルの生成
+	// ブロック生成
 	modelBlock_ = Model::CreateFromOBJ("block", true);
+	// とげ生成
+	//modelNeedle_ = Model::CreateFromOBJ("needle", true);
+
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	// ビュープロジェクションの初期化
@@ -66,13 +67,26 @@ void GameScene::Initialize() {
 	// 天球の生成
 	skydome_ = new Skydome();
 	// 天球3Dモデルの生成
-	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
-	model_ = Model::CreateFromOBJ("player", true);
+	modelSkydome_ = Model::CreateFromOBJ("night", true);
+
+	// ゴールの生成
+	goal_ = new Goal();
+	// ゴールモデルの生成
+	modelGoal_ = Model::CreateFromOBJ("goal", true);
+	// 座標をマップチップ番号で指定
+	Vector3 goalPosition = mapChipField_->GetMapChipPositionByIndex(95, 18);
+	// ゴールの初期化
+	goal_->Initialize(modelGoal_, &viewProjection_, goalPosition);
+	goal_->SetMapChipField(mapChipField_);
+
 
 	// マップチップフィールドの生成と初期化
 	mapChipField_ = new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/blocks.csv");
 	GenerateBlocks();
+
+	// プレイヤーのモデル
+	model_ = Model::CreateFromOBJ("player", true);
 
 	// 座標をマップチップ番号で指定
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(3, 18);
@@ -82,12 +96,15 @@ void GameScene::Initialize() {
 
 	// 敵キャラの生成
 	// enemy_ = new Enemy();
-	for (int32_t i = 0; i < 2; ++i) {
+	for (int32_t i = 0; i < 3; ++i) {
 		modelEnemy_ = Model::CreateFromOBJ("enemy", true);
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(15, 18);
+		//Enemy* newEnemy2 = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(65, 18);
+		//Vector3 enemyPosition2 = mapChipField_->GetMapChipPositionByIndex(18, 18);
 		newEnemy->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
-
+		//newEnemy2->Initialize(modelEnemy_, &viewProjection_, enemyPosition2);
+		newEnemy->SetMapChipField(mapChipField_);
 		enemies_.push_back(newEnemy);
 	}
 
@@ -97,8 +114,8 @@ void GameScene::Initialize() {
 	// パーティクルの初期化
 	modelDeathParticles = Model::CreateFromOBJ("deathParticle", true);
 
-	// パーティクルの仮の生成処理。後で消す
-	deathParticles_ = new DeathParticles;
+	// パーティクルの仮の生成処理
+	deathParticles_ = new Particle;
 	deathParticles_->Initialize(modelDeathParticles, &viewProjection_, position);
 
 	// 天球の初期化
@@ -135,6 +152,9 @@ void GameScene::Update() {
 	case Phase::kPlay:
 		// 天球の更新
 		skydome_->Update();
+
+		// ゴールの更新
+		goal_->Update();
 
 		// 自キャラの更新
 		player_->Update();
@@ -180,12 +200,18 @@ void GameScene::Update() {
 
 		// 全ての当たり判定を行う
 		CheckAllCollisions();
+		// ゴール当たり判定を行う
+		CheckGoalCollisions();
 
 		break;
+
 
 	case Phase::kDeath:
 		// 天球の更新
 		skydome_->Update();
+
+		// ゴールの更新
+		goal_->Update();
 
 		// 敵キャラの更新
 		for (Enemy* enemy : enemies_) {
@@ -227,9 +253,11 @@ void GameScene::Update() {
 				worldTransformBlockYoko->TransferMatrix();
 			}
 		}
-		//タイトルscene
+		// タイトル scene
 
 		break;
+	case Phase::kGoal:
+		finished_ = true;
 	}
 }
 
@@ -268,6 +296,10 @@ void GameScene::Draw() {
 
 	// スカイドームの描画
 	skydome_->Draw();
+
+	// ゴールの更新
+	goal_->Draw();
+
 	// 敵キャラの描画
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
@@ -284,6 +316,7 @@ void GameScene::Draw() {
 			if (!worldTransformBlock)
 				continue;
 			modelBlock_->Draw(*worldTransformBlock, viewProjection_);
+			//modelNeedle_ -> Draw(*worldTransformBlock, viewProjection_);
 		}
 	}
 
@@ -291,7 +324,7 @@ void GameScene::Draw() {
 	Model::PostDraw();
 #pragma endregion
 
-#pragma region 前景スプライト描画
+#pragma region
 	// 前景スプライト描画前処理
 	Sprite::PreDraw(commandList);
 
@@ -312,6 +345,8 @@ void GameScene::CheckAllCollisions() {
 	// 自キャラの座標
 	aabb1 = player_->GetAABB();
 
+	// ゴールの座標
+
 	// 自キャラと敵弾すべての当たり判定
 	for (Enemy* enemy : enemies_) {
 		// 敵弾の座標
@@ -324,6 +359,61 @@ void GameScene::CheckAllCollisions() {
 			// 敵弾の衝突時コールバックを呼び起こす
 			enemy->OnCollision(player_);
 		}
+	}
+}
+
+void GameScene::CheckGoalCollisions() {
+
+	// 判定対象1と2の座標
+	AABB aabb1, aabb2;
+
+	// 自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	// 自キャラと敵弾すべての当たり判定
+	// 敵弾の座標
+	aabb2 = goal_->GetAABB();
+
+	// AABB同士の交差判定
+	if (IsCollision(aabb1, aabb2)) {
+		// 自キャラの衝突時コールバックを呼び起こす
+		player_->OnCollision(goal_);
+		// ゴール時
+		goal_->OnCollision(player_);
+	}
+}
+
+void GameScene::ChangePhase() {
+	switch (phase_) {
+	case Phase::kPlay:
+		if (player_->IsDead()) {
+			// 死亡演出フェーズに切り替え
+			phase_ = Phase::kDeath;
+			// 自キャラの座標を取得
+			player_->Update();
+			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
+
+			// パーティクルの初期化
+			modelDeathParticles = Model::CreateFromOBJ("deathParticle", true);
+
+			// パーティクルの生成処理
+			deathParticles_ = new Particle;
+			deathParticles_->Initialize(modelDeathParticles, &viewProjection_, deathParticlesPosition);
+		}
+		if (player_->IsGoal()) {
+			phase_ = Phase::kGoal;
+		}
+
+		break;
+	case Phase::kDeath:
+
+		if (deathParticles_ && deathParticles_->IsFinished()) {
+			finished_ = true;
+		}
+
+		break;
+	case Phase::kGoal:
+		finished_ = true;
 	}
 }
 
@@ -350,35 +440,5 @@ void GameScene::GenerateBlocks() {
 				worldTransformBlocks_[i][j] = nullptr;
 			}
 		}
-	}
-}
-
-void GameScene::ChangePhase() {
-	switch (phase_) {
-	case Phase::kPlay:
-		if (player_->IsDead()) {
-			// 死亡演出フェーズに切り替え
-			phase_ = Phase::kDeath;
-			// 自キャラの座標を取得
-			player_->Update();
-			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
-
-			// パーティクルの初期化
-			modelDeathParticles = Model::CreateFromOBJ("deathParticle", true);
-
-			// パーティクルの生成処理
-			deathParticles_ = new DeathParticles;
-			deathParticles_->Initialize(modelDeathParticles, &viewProjection_, deathParticlesPosition);
-		}
-
-		break;
-	case Phase::kDeath:
-
-		if (deathParticles_ && deathParticles_->IsFinished()) {
-			// パーティクルの処理が終了したらタイトル画面に戻る
-			finished_ = true;
-		}
-
-		break;
 	}
 }

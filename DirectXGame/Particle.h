@@ -1,15 +1,15 @@
 #pragma once
+#include "cmath"
+#include <MathUtilityForText.h>
 #include <Model.h>
 #include <ViewProjection.h>
-#include <array>
 #include <WorldTransform.h>
-#include <math.h>
-#include "cmath"
-#include <corecrt_math_defines.h>
-#include <MathUtilityForText.h>
 #include <algorithm>
+#include <array>
+#include <corecrt_math_defines.h>
+#include <math.h>
 
-class DeathParticles {
+class Particle {
 public:
 	/// <summary>
 	/// 初期化
@@ -28,7 +28,6 @@ public:
 
 	// デスフラグの getter
 	bool IsFinished() const { return isFinished_; }
-	
 
 private:
 	ViewProjection* viewProjection_ = nullptr;
@@ -57,5 +56,4 @@ private:
 	// 色の数値
 	Vector4 color_;
 	// 終了フラグ
-	
 };

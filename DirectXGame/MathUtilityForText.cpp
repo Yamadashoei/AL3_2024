@@ -119,6 +119,15 @@ const Vector3 operator+(const Vector3& v1, const Vector3& v2) {
 	return temp += v2;
 }
 
+// 2項演算 Vector3の足し算  02_06 補足p5
+const Vector3 operator-=(const Vector3& v1, const Vector3& v2) {
+	Vector3 temp(v1);
+	temp.x -= v2.x;
+	temp.y -= v2.y;
+	temp.z -= v2.z;
+	return temp;
+}
+
 // 代入演算子オーバーロード
 //  Vector3の掛け算 02_06 補足p11
 Vector3& operator*=(Vector3 v, float s) {

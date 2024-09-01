@@ -1,7 +1,7 @@
-#include "DeathParticles.h"
+#include "Particle.h"
 #include <cassert>
 
-void DeathParticles::Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position) {
+void Particle::Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position) {
 	// NULLポインタチェック
 	assert(model);
 
@@ -17,7 +17,7 @@ void DeathParticles::Initialize(Model* model, ViewProjection* viewProjection, co
 	color_ = {1, 1, 1, 1};
 }
 
-void DeathParticles::Update() {
+void Particle::Update() {
 	// 終了なら何もしない
 	if (isFinished_) {
 		return;
@@ -54,7 +54,7 @@ void DeathParticles::Update() {
 	objectColor_.TransferMatrix();
 }
 
-void DeathParticles::Draw() {
+void Particle::Draw() {
 	// 終了なら何もしない
 	if (isFinished_) {
 		return;

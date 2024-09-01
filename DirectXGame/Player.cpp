@@ -84,6 +84,12 @@ void Player::OnCollision(const Enemy* enemy) {
 	isDead_ = true;
 }
 
+void Player::OnCollision(const Goal* goal) {
+	(void)goal;
+	// デスフラグを立てる
+	isGoal_ = true;
+}
+
 void Player::inputMove() {
 	// 移動入力
 	if (onGround_) {

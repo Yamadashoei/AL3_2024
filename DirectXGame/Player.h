@@ -9,12 +9,12 @@
 
 class MapChipField;
 class Enemy;
+class Goal;
 
-/// <summary>
 /// 自キャラ
-/// </summary>
 class Player {
 public:
+
 	// 左右
 	enum class LRDirection {
 		kRight,
@@ -31,21 +31,13 @@ public:
 		kNumCorner // 要素数
 	};
 
-	/// <summary>
 	/// 初期化
-	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <param name="textureHandle">テクスチャハンドル</param>
 	void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position);
 
-	/// <summary>
 	/// 毎フレーム処理
-	/// </summary>
 	void Update();
 
-	/// <summary>
 	/// 描画
-	/// </summary>
 	void Draw();
 
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
@@ -59,11 +51,17 @@ public:
 	// AABBを取得
 	AABB GetAABB();
 
-	// 衝突応答
+	// 衝突応答1
 	void OnCollision(const Enemy* enemy);
+
+	// 衝突応答2
+	void OnCollision(const Goal* goal);
 
 	// デスフラグgetter
 	bool IsDead() const { return isDead_; }
+
+	// ゴールフラグgetter
+	bool IsGoal() const { return isGoal_; }
 
 private:
 	static inline const float kAcceleration = 0.1f;
@@ -102,6 +100,9 @@ private:
 
 	// デスフラグ
 	bool isDead_ = false;
+	// デスフラグ
+	bool isGoal_ = false;
+	
 
 	// 接地状態フラグ
 	bool onGround_ = true;
@@ -113,7 +114,7 @@ private:
 	// 旋回タイマー
 	float turnTimer_ = 0.0f;
 	// マップチップによるフィールド
-	MapChipField* mapChipField_ = nullptr;
+	MapChipField* mapChipField_ = nullptr; 
 
 	void inputMove();
 
